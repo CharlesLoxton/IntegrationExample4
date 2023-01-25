@@ -2,59 +2,35 @@
 using IntegrationExample4.Models;
 using IntegrationExample4.Interfaces;
 
-Client client = new Client()
+IClient client = new Client()
 {
     Id = 1,
     Name = "Sage Client"
 };
 
-Invoice invoice = new Invoice()
+IInvoice invoice = new Invoice()
 {
     Id = 1,
     Name = "Sage Client"
 };
 
+var factory = new IntegrationFactory();
 
-Func<string> tokenRetrievalFunc = GetToken;
-Func<string> tokenSaveFunc = SaveToken;
+int userID = 1;
+IGateway gateway = new Gateway(userID);
 
-AccountingProviderFactory factory = new AccountingProviderFactory(tokenRetrievalFunc, tokenSaveFunc);
+factory.CreateConnection("Sage", gateway);
 
-var clientProvider = factory.Client("Sage");
-var invoiceProvider = factory.Invoice("Sage");
+//Connect to the accounting provider
+AccountingProvider providerFactory = factory.CreateAccountingProvider(gateway);
 
-clientProvider.CreateClient(client,
-            (result) => {
-                //Do something with the returned Client object
-                Console.WriteLine("Client created with ID: " + result.Id);
-            },
-            (ex) => {
-                // do something with the exception
-                Console.WriteLine("Error occured while creating client: " + ex.Message);
-            }
-);
+//Create the Entities for that accounting provider
+var clientProvider = providerFactory.Client();
+var invoiceProvider = providerFactory.Invoice();
 
-invoiceProvider.CreateInvoice(invoice,
-            (result) => {
-                //Do something with the returned Client object
-                Console.WriteLine("Invoice created with ID: " + result.Id);
-            },
-            (ex) => {
-                // do something with the exception
-                Console.WriteLine("Error occured while creating invoice: " + ex.Message);
-            }
-);
+//Make the crud calls to the accounting provider 
+var sageClient = clientProvider.Upsert(client);
+var sageInvoice = invoiceProvider.Upsert(invoice);
 
-string GetToken()
-{
-    Console.WriteLine("Retrieving Token from KOST");
-    //Logic for getting token from KOST
-    return "Token";
-}
-
-string SaveToken()
-{
-    Console.WriteLine("Saving new Token in KOST");
-    //Logic for saving token in KOST
-    return "Success";
-}
+//Disconnect the current accounting provider
+factory.Disconnect(gateway, providerFactory);

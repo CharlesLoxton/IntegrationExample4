@@ -8,50 +8,42 @@ using IntegrationExample4.Models;
 
 namespace IntegrationExample4
 {
-    internal class SageQuote : IQuote
+    internal class SageQuote : IQuote_Actions
     {
-        private Func<string> _tokenRetrievalFunc;
-        private Func<string> _tokenSaveFunc;
-
-        public SageQuote(Func<string> tokenRetrievalFunc, Func<string> tokenSaveFunc)
+        IGateway _gateway;
+        public SageQuote(IGateway gateway)
         {
-            _tokenRetrievalFunc = tokenRetrievalFunc;
-            _tokenSaveFunc = tokenSaveFunc;
+            _gateway = gateway;
         }
 
-        public void CreateQuote(Quote quote, Action<Quote>? successCallback, Action<Exception>? errorCallback)
+        public IQuote UpsertQuote(IQuote quote)
         {
             try
             {
-                string Token = _tokenRetrievalFunc();
+                string Token = _gateway.TokenRetrieval();
 
-                Quote sageQuote = new Quote()
+                IQuote sageQuote = new Quote()
                 {
                     Id = quote.Id,
                     Name = quote.Name
                 };
                 // Do something with the client object
-                string save = _tokenSaveFunc();
-                successCallback?.Invoke(sageQuote);
+                _gateway.TokenSave("Token");
+                return sageQuote;
 
             }
             catch (Exception ex)
             {
-                errorCallback?.Invoke(ex);
+                throw new Exception("Error: " + ex.Message);
             }
         }
 
-        public void DeleteQuote()
+        public void DeleteQuote(int accountingProviderId)
         {
             throw new NotImplementedException();
         }
 
-        public void ReadQuote()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateQuote()
+        public IQuote ReadQuote(int? accountingProviderId)
         {
             throw new NotImplementedException();
         }

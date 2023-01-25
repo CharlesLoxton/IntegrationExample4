@@ -9,52 +9,46 @@ using IntegrationExample4.Models;
 
 namespace IntegrationExample4
 {
-    internal class SageInvoice : IInvoice
+    internal class SageInvoice : IInvoice_Actions
     {
-        private Func<string> _tokenRetrievalFunc;
-        private Func<string> _tokenSaveFunc;
+        IGateway _gateway;
 
-        public SageInvoice(Func<string> tokenRetrievalFunc, Func<string> tokenSaveFunc)
+        public SageInvoice(IGateway gateway)
         {
-            _tokenRetrievalFunc = tokenRetrievalFunc;
-            _tokenSaveFunc = tokenSaveFunc;
+            _gateway = gateway;
         }
 
-        public void CreateInvoice(Invoice invoice, Action<Invoice>? successCallback, Action<Exception>? errorCallback)
+        public IInvoice Upsert(IInvoice invoice)
         {
             try
             {
-                string Token = _tokenRetrievalFunc();
+                string Token = _gateway.TokenRetrieval();
 
-                Invoice sageInvoice = new Invoice()
+                IInvoice sageInvoice = new Invoice()
                 {
                     Id = invoice.Id,
                     Name = invoice.Name
                 };
                 // Do something with the client object
-                string save = _tokenSaveFunc();
-                successCallback?.Invoke(sageInvoice);
+                _gateway.TokenSave("token");
+                return sageInvoice;
 
             }
             catch (Exception ex)
             {
-                errorCallback?.Invoke(ex);
+                throw new Exception("Error:" + ex.Message);
             }
         }
 
-        public void DeleteInvoice()
+        public void DeleteInvoice(int accountingProviderId)
         {
             throw new NotImplementedException();
         }
 
-        public void ReadInvoice()
+        public IInvoice ReadInvoice(int? accountingProviderId)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateInvoice()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -8,49 +8,41 @@ using IntegrationExample4.Models;
 
 namespace IntegrationExample4
 {
-    internal class SagePurchaseOrder : IPurchaseOrder
+    internal class SagePurchaseOrder : IPurchaseOrder_Actions
     {
-        private Func<string> _tokenRetrievalFunc;
-        private Func<string> _tokenSaveFunc;
-
-        public SagePurchaseOrder(Func<string> tokenRetrievalFunc, Func<string> tokenSaveFunc)
+        IGateway _gateway;
+        public SagePurchaseOrder(IGateway gateway)
         {
-            _tokenRetrievalFunc = tokenRetrievalFunc;
-            _tokenSaveFunc = tokenSaveFunc;
+            _gateway = gateway;
         }
 
-        public void CreatePurchaseOrder(PurchaseOrder po, Action<PurchaseOrder>? successCallback, Action<Exception>? errorCallback)
+        public IPurchaseOrder UpsertPurchaseOrder(IPurchaseOrder po)
         {
             try
             {
-                string Token = _tokenRetrievalFunc();
-                PurchaseOrder sagePO = new PurchaseOrder()
+                string Token = _gateway.TokenRetrieval();
+                IPurchaseOrder sagePO = new PurchaseOrder()
                 {
                     Id = po.Id,
                     Name = po.Name
                 };
                 // Do something with the client object
-                string save = _tokenSaveFunc();
-                successCallback?.Invoke(sagePO);
+                _gateway.TokenSave("Token");
+                return sagePO;
 
             }
             catch (Exception ex)
             {
-                errorCallback?.Invoke(ex);
+                throw new Exception("Error:" + ex.Message);
             }
-        }
+        }   
 
-        public void DeletePurchaseOrder()
+        public IPurchaseOrder ReadPurchaseOrder(int? accountingProviderId)
         {
             throw new NotImplementedException();
         }
 
-        public void ReadPurchaseOrder()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdatePurchaseOrder()
+        public void DeletePurchaseOrder(int accountingProviderId)
         {
             throw new NotImplementedException();
         }

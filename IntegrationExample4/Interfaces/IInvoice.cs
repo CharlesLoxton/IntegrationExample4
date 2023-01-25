@@ -1,5 +1,4 @@
-﻿using IntegrationExample4.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,9 +8,7 @@ namespace IntegrationExample4.Interfaces
 {
     internal interface IInvoice
     {
-        void CreateInvoice(Invoice invoice, Action<Invoice>? successCallback, Action<Exception>? errorCallback);
-        void ReadInvoice();
-        void UpdateInvoice();
-        void DeleteInvoice();
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
 }

@@ -8,23 +8,21 @@ using IntegrationExample4.Models;
 
 namespace IntegrationExample4
 {
-    internal class SageClient : IClient
+    internal class SageClient : IClient_Actions
     {
-        private Func<string> _tokenRetrievalFunc;
-        private Func<string> _tokenSaveFunc;
+        IGateway _gateway;
 
-        public SageClient(Func<string> tokenRetrievalFunc, Func<string> tokenSaveFunc)
+        public SageClient(IGateway gateway)
         {
-            _tokenRetrievalFunc = tokenRetrievalFunc;
-            _tokenSaveFunc = tokenSaveFunc;
+            _gateway= gateway;
         }
 
-        public void CreateClient(Client client, Action<Client>? successCallback, Action<Exception>? errorCallback)
+        public IClient Upsert(IClient client)
         {
             try
             {
-                string Token = _tokenRetrievalFunc();
-                Client sageClient = new Client()
+                string Token = _gateway.TokenRetrieval();
+                IClient sageClient = new Client()
                 {
                     Id = client.Id,
                     Name = client.Name
@@ -32,28 +30,24 @@ namespace IntegrationExample4
 
                 Console.WriteLine("Creating Client in Sage");
 
-                string save = _tokenSaveFunc();
-                successCallback?.Invoke(sageClient);
+                _gateway.TokenSave("Token");
+                return sageClient;
             }
             catch(Exception ex)
             {
-                errorCallback?.Invoke(ex);
+                throw new Exception("Error: " + ex.Message);
             }
         }
 
-        public void DeleteClient()
+        public void DeleteClient(int accountingProviderId)
         {
             throw new NotImplementedException();
         }
 
-        public void ReadClient()
+        public IClient ReadClient(int? accountingProviderId)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateClient()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
