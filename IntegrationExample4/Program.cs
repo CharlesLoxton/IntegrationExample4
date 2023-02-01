@@ -5,13 +5,17 @@ using IntegrationExample4.Interfaces;
 IClient client = new Client()
 {
     Id = 1,
-    Name = "Sage Client"
+    Name = "Sage Client",
+    GUID = null,
+    UserID = 1
 };
 
 IInvoice invoice = new Invoice()
 {
     Id = 1,
-    Name = "Sage Client"
+    Name = "Sage Invoice",
+    GUID = null,
+    UserID = 1
 };
 
 var factory = new IntegrationFactory();

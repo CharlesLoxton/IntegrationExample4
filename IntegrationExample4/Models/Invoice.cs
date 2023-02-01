@@ -11,5 +11,7 @@ namespace IntegrationExample4.Models
     {
         public int Id { get; set; }
         public string? Name { get; set; }
+        public string? GUID { get; set; }
+        public int UserID { get; set; }
     }
 }

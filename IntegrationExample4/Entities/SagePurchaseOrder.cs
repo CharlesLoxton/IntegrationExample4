@@ -16,33 +16,80 @@ namespace IntegrationExample4
             _gateway = gateway;
         }
 
-        public IPurchaseOrder UpsertPurchaseOrder(IPurchaseOrder po)
+        public IPurchaseOrder Upsert(IPurchaseOrder po)
         {
             try
             {
+                Console.WriteLine("Upsert for Purchase Order has been called on IPurchaseOrder_Actions");
+                IPurchaseOrder sagePO = new PurchaseOrder();
                 string Token = _gateway.TokenRetrieval();
-                IPurchaseOrder sagePO = new PurchaseOrder()
-                {
-                    Id = po.Id,
-                    Name = po.Name
-                };
-                // Do something with the client object
-                _gateway.TokenSave("Token");
-                return sagePO;
 
+                //Check if client.GUID exists in our APLink table
+                if (po.GUID != null)
+                {
+                    APLink link = _gateway.FindEntityByGUID(po.GUID, "Sage");
+                    //If it returns an APLink object we know it exists in Sage
+
+                    //Now we make a call to sage using the Get method and the link.AccountingProviderID
+                    //If this returns a PO from Sage, we have to compare the objects and update Sage
+                    //If it does not return an object then this means the user switched instances or deleted it, so we do a 
+                    //POST request to Sage to recreate the PO
+                }
+                else//This would be a first time push
+                {
+                    //We generate a guid using a library or our own method
+                    string guid = "dsadas56da4sd4ad4asddasd";
+
+                    //Logic for making upsert to Sage
+                    Console.WriteLine("Creating Invoice in Sage");
+
+                    //Sage gives us a response with the ID
+                    string response_Id = "13213123123";
+
+                    //Save the company Id, it's either in the response from Sage or we have to make another request...
+                    int companyId = 32534;
+                    string companyName = "BobTheBuilder";
+
+                    APLink link = new APLink()
+                    {
+                        UserID = po.UserID,
+                        GUID = guid,
+                        AccountingProviderID = response_Id,
+                        ComapnyID = companyId,
+                        ComapnyName = companyName,
+                        ConnectedDate = DateTime.Now,
+                        DisconnectedDate = null
+                    };
+
+                    _gateway.SaveGUID("PurchaseOrder", po.Id, guid);
+                    _gateway.SaveAPLink(link);
+                    _gateway.TokenSave("432423423fdsfsdf2f34re2fsdfa");
+
+                    sagePO.Id = po.Id;
+                    sagePO.Name = po.Name;
+                    sagePO.GUID = guid;
+                    sagePO.UserID = po.UserID;
+                }
+
+                return sagePO;
             }
             catch (Exception ex)
             {
-                throw new Exception("Error:" + ex.Message);
+                throw new Exception("Error: " + ex.Message);
             }
         }   
 
-        public IPurchaseOrder ReadPurchaseOrder(int? accountingProviderId)
+        public IPurchaseOrder Read(int? accountingProviderId)
         {
             throw new NotImplementedException();
         }
 
-        public void DeletePurchaseOrder(int accountingProviderId)
+        public void Delete(int accountingProviderId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Sync()
         {
             throw new NotImplementedException();
         }

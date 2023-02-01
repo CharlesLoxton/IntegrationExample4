@@ -10,7 +10,8 @@ namespace IntegrationExample4.Interfaces
     internal interface IInvoice_Actions
     {
         IInvoice Upsert(IInvoice invoice);
-        IInvoice ReadInvoice(int? accountingProviderId);
-        void DeleteInvoice(int accountingProviderId);
+        IInvoice Read(int? accountingProviderId);
+        void Delete(int accountingProviderId);
+        void Sync();
     }
 }

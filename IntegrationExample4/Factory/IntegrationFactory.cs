@@ -12,8 +12,9 @@ namespace IntegrationExample4.Factory
     {
         public AccountingProvider CreateAccountingProvider(IGateway gateway)
         {
+            Console.WriteLine("Check if the user has a selected a provider");
             if (gateway.RetrieveSelectedProvider() == null) throw new Exception("Provider is null");
-
+            Console.WriteLine("Creating Accounting provider class");
             return new AccountingProvider(gateway, gateway.RetrieveSelectedProvider());
         }
         
@@ -21,8 +22,8 @@ namespace IntegrationExample4.Factory
         {
             if(provider == "Sage")
             {
-                Console.WriteLine("Creating Sage token and saving");
-                gateway.TokenSave("Token");
+                Console.WriteLine("Creating Initial connection with Sage");
+                gateway.TokenSave("123");
                 gateway.SaveSelectedProvider(provider);
             }
         }
@@ -30,6 +31,7 @@ namespace IntegrationExample4.Factory
         public void Disconnect(IGateway gateway, AccountingProvider AP)
         {
             AP._provider = "";
+            Console.WriteLine("Disconencting Accounting Provider and setting values to null...");
             gateway.SaveSelectedProvider("");
             gateway.TokenSave("");
         }

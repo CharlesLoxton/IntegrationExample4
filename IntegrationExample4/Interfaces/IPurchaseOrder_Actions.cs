@@ -9,8 +9,9 @@ namespace IntegrationExample4.Interfaces
 {
     internal interface IPurchaseOrder_Actions
     {
-        IPurchaseOrder UpsertPurchaseOrder(IPurchaseOrder po);
-        IPurchaseOrder ReadPurchaseOrder(int? accountingProviderId);
-        void DeletePurchaseOrder(int accountingProviderId);
+        IPurchaseOrder Upsert(IPurchaseOrder po);
+        IPurchaseOrder Read(int? accountingProviderId);
+        void Delete(int accountingProviderId);
+        void Sync();
     }
 }

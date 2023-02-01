@@ -9,8 +9,9 @@ namespace IntegrationExample4.Interfaces
 {
     internal interface IQuote_Actions
     {
-        IQuote UpsertQuote(IQuote quote);
-        IQuote ReadQuote(int? accountingProviderId);
-        void DeleteQuote(int accountingProviderId);
+        IQuote Upsert(IQuote quote);
+        IQuote Read(int? accountingProviderId);
+        void Delete(int accountingProviderId);
+        void Sync();
     }
 }
