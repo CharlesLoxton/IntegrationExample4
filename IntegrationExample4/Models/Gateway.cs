@@ -58,7 +58,7 @@ namespace IntegrationExample4.Models
             Console.WriteLine("Saving guid in KOST");
         }
 
-        public APLink FindEntityByGUID(string guid, string accountingProviderName)
+        public APLink FindAPLinkByGUID(string guid, string accountingProviderName)
         {
             Console.WriteLine("Finding APLink in KOST");
 

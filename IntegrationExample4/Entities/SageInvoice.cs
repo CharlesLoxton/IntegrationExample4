@@ -30,7 +30,7 @@ namespace IntegrationExample4
                 //Check if client.GUID exists in our APLink table
                 if (invoice.GUID != null)
                 {
-                    APLink link = _gateway.FindEntityByGUID(invoice.GUID, "Sage");
+                    APLink link = _gateway.FindAPLinkByGUID(invoice.GUID, "Sage");
                     //If it returns an APLink object we know it exists in Sage
 
                     //Now we make a call to sage using the Get method and the link.AccountingProviderID

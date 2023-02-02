@@ -23,7 +23,7 @@ namespace IntegrationExample4.Interfaces
 
         public void SaveGUID(string entityName, int entityID, string guid); //Save the GUID for the corresponding entity object
 
-        public APLink FindEntityByGUID(string guid, string accountingProviderName); //return APLink where APLink.GUID = guid and APLink.accountingProviderName = accountingProviderName
+        public APLink FindAPLinkByGUID(string guid, string accountingProviderName); //return APLink where APLink.GUID = guid and APLink.accountingProviderName = accountingProviderName
 
         public IEnumerable<Client> RetrieveAllClients(); //Yield return a list of clients where Kost.UserID = this.UserID
 
