@@ -3,12 +3,17 @@ using IntegrationExample4.Models;
 using IntegrationExample4.Interfaces;
 using IntegrationExample4.Data;
 
+//This is just an example object of the DBcontext object that we will use in EF core
+KDBcontext context = new KDBcontext();
+
+int userID = 1;
+
 IClient client = new Client()
 {
     Id = 1,
     Name = "Sage Client",
     GUID = null,
-    UserID = 1
+    UserID = userID
 };
 
 IInvoice invoice = new Invoice()
@@ -16,10 +21,8 @@ IInvoice invoice = new Invoice()
     Id = 1,
     Name = "Sage Invoice",
     GUID = null,
-    UserID = 1
+    UserID = userID
 };
-
-KDBcontext context = new KDBcontext();
 
 //This is what Neil will have to add to his Startup.cs class
 //services.AddDbContext<KDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -27,12 +30,12 @@ KDBcontext context = new KDBcontext();
 
 var factory = new IntegrationFactory(context);
 
-int userID = 1;
 IGateway gateway = new Gateway(userID);
 
+//Connect to the accounting provider
 factory.CreateConnection("Sage", gateway);
 
-//Connect to the accounting provider
+//Create our providerFactory that will handle calls to the api
 AccountingProvider providerFactory = factory.CreateAccountingProvider(gateway);
 
 //Create the Entities for that accounting provider and do an upsert
