@@ -16,7 +16,7 @@ namespace IntegrationExample4.Functions
         }
 
         //This is a universal way of Posting for all entities
-        public void Post(IEntity entity, string provider)
+        public void Post(IEntity entity, string provider, string type)
         {
             try
             {
@@ -30,15 +30,19 @@ namespace IntegrationExample4.Functions
                     APLink link = _gateway.FindAPLinkByGUID(_context, entity.GUID, provider);
                     //If it returns an APLink object we know it exists in Sage, but we should do a GET check to make sure
 
-                    //Updating the Entity in Sage happens here
+                    //Updating the Entity in AP happens here
                 }
 
                 else//This would be a first time Create
                 {
+                    string guid = Guid.NewGuid().ToString();
+
+                    entity.GUID = guid;
+
                     switch (provider)
                     {
                         case "Sage":
-                            response = new SageAPI().PostSage(entity, entity.GetType().Name);
+                            response = new SageAPI().PostSage(entity, type);
                             break;
                         case "Xero":
                             //response = new XeroAPI().PostXero(entity, ReturnType(entity));
@@ -51,7 +55,7 @@ namespace IntegrationExample4.Functions
                     }
 
                     if (response == null) return;
-
+                    Console.WriteLine("Reference: " + response.Reference);
                     APLink link = new APLink()
                     {
                         UserID = entity.UserID,
@@ -70,7 +74,7 @@ namespace IntegrationExample4.Functions
                         }
                     };
 
-                    _gateway.SaveGUID(_context, entity.GetType().Name, entity.Id, response.Reference);
+                    _gateway.SaveGUID(_context, type, entity.Id, response.Reference);
                     _gateway.SaveAPLink(_context, link);
                     _gateway.TokenSave(_context, Guid.NewGuid().ToString());
                 }

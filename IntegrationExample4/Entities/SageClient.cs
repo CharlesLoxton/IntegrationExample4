@@ -22,12 +22,10 @@ namespace IntegrationExample4
             {
                 AccountingProviderAPI api = new AccountingProviderAPI(_context, _gateway);
 
-                IEntity sageClient = new Client();
-
                 //We need to check if Neil is using transactions, if he isn't then we have to manually create a transaction in EF core
                 if (_context.Database.CurrentTransaction != null)
                 {
-                    api.Post(client, "Sage");
+                    api.Post(client, "Sage", "Client");
                 }
                 else
                 {
@@ -35,7 +33,7 @@ namespace IntegrationExample4
                     {
                         try
                         {
-                            api.Post(client, "Sage");
+                            api.Post(client, "Sage", "Client");
                             transaction.Commit();
                         }
                         catch (Exception)
