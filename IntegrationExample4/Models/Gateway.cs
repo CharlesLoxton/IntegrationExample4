@@ -1,4 +1,5 @@
-﻿using IntegrationExample4.Interfaces;
+﻿using IntegrationExample4.Data;
+using IntegrationExample4.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,29 +17,29 @@ namespace IntegrationExample4.Models
             UserId = userId;
         }
 
-        public string RetrieveSelectedProvider()
+        public string RetrieveSelectedProvider(KDBcontext context)
         {
-            Console.WriteLine("Retieving provider: Sage");
+            Console.WriteLine("Retieving provider: Sage\n");
             return "Sage";
         }
 
-        public void SaveSelectedProvider(string provider)
+        public void SaveSelectedProvider(KDBcontext context, string provider)
         {
             Console.WriteLine("Saving provider with name: " + provider);
         }
 
-        public string TokenRetrieval()
+        public string TokenRetrieval(KDBcontext context)
         {
             Console.WriteLine("Retrieving token");
             return "123";
         }
 
-        public void TokenSave(string token)
+        public void TokenSave(KDBcontext context, string token)
         {
             Console.WriteLine("Saving token in KOST");
         }
 
-        public IEnumerable<Client> RetrieveAllClients()
+        public IEnumerable<Client> RetrieveAllClients(KDBcontext context)
         {
             List<Client> clients = new List<Client>();
 
@@ -48,17 +49,17 @@ namespace IntegrationExample4.Models
             }
         }
 
-        public void SaveAPLink(APLink link)
+        public void SaveAPLink(KDBcontext context, APLink link)
         {
             Console.WriteLine("Saving APLink in KOST");
         }
 
-        public void SaveGUID(string entityName, int entityID, string guid)
+        public void SaveGUID(KDBcontext context, string entityName, int entityID, string guid)
         {
             Console.WriteLine("Saving guid in KOST");
         }
 
-        public APLink FindAPLinkByGUID(string guid, string accountingProviderName)
+        public APLink FindAPLinkByGUID(KDBcontext context, string guid, string accountingProviderName)
         {
             Console.WriteLine("Finding APLink in KOST");
 
@@ -66,7 +67,7 @@ namespace IntegrationExample4.Models
             return null;
         }
 
-        public void AddClient(Client client)
+        public void AddClient(KDBcontext context, Client client)
         {
             Console.WriteLine("Saving Client in KOST");
         }

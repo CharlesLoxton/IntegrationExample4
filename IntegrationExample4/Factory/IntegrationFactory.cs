@@ -1,4 +1,5 @@
-﻿using IntegrationExample4.Interfaces;
+﻿using IntegrationExample4.Data;
+using IntegrationExample4.Interfaces;
 using IntegrationExample4.Models;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,17 @@ namespace IntegrationExample4.Factory
 {
     internal class IntegrationFactory
     {
+        KDBcontext _context;
+        public IntegrationFactory(KDBcontext context) 
+        {
+            _context= context;
+        }
         public AccountingProvider CreateAccountingProvider(IGateway gateway)
         {
             Console.WriteLine("Check if the user has a selected a provider");
-            if (gateway.RetrieveSelectedProvider() == null) throw new Exception("Provider is null");
+            if (gateway.RetrieveSelectedProvider(_context) == null) throw new Exception("Provider is null");
             Console.WriteLine("Creating Accounting provider class");
-            return new AccountingProvider(gateway, gateway.RetrieveSelectedProvider());
+            return new AccountingProvider(gateway, gateway.RetrieveSelectedProvider(_context), _context);
         }
         
         public void CreateConnection(string provider, IGateway gateway)
@@ -23,17 +29,16 @@ namespace IntegrationExample4.Factory
             if(provider == "Sage")
             {
                 Console.WriteLine("Creating Initial connection with Sage");
-                gateway.TokenSave("123");
-                gateway.SaveSelectedProvider(provider);
+                gateway.TokenSave(_context, "123");
+                gateway.SaveSelectedProvider(_context, provider);
             }
         }
 
-        public void Disconnect(IGateway gateway, AccountingProvider AP)
+        public void Disconnect(IGateway gateway)
         {
-            AP._provider = "";
             Console.WriteLine("Disconencting Accounting Provider and setting values to null...");
-            gateway.SaveSelectedProvider("");
-            gateway.TokenSave("");
+            gateway.SaveSelectedProvider(_context, "");
+            gateway.TokenSave(_context, "");
         }
 
         public async void Callback(string callbackUrl)

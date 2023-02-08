@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IntegrationExample4.Data;
+using IntegrationExample4.Functions;
 using IntegrationExample4.Interfaces;
 using IntegrationExample4.Models;
 
@@ -11,67 +13,41 @@ namespace IntegrationExample4
     internal class SagePurchaseOrder : IPurchaseOrder_Actions
     {
         IGateway _gateway;
-        public SagePurchaseOrder(IGateway gateway)
+        KDBcontext _context;
+
+        public SagePurchaseOrder(IGateway gateway, KDBcontext context)
         {
             _gateway = gateway;
+            _context = context;
         }
 
-        public IPurchaseOrder Upsert(IPurchaseOrder po)
+        public void Upsert(IPurchaseOrder po)
         {
             try
             {
-                Console.WriteLine("Upsert for Purchase Order has been called on IPurchaseOrder_Actions");
-                IPurchaseOrder sagePO = new PurchaseOrder();
-                string Token = _gateway.TokenRetrieval();
+                AccountingProviderAPI api = new AccountingProviderAPI(_context, _gateway);
+                IEntity sagePO = new PurchaseOrder();
 
-                //Check if client.GUID exists in our APLink table
-                if (po.GUID != null)
+                //We need to check if Neil is using transactions, if he isn't then we have to manually create a transaction in EF core
+                if (_context.Database.CurrentTransaction != null)
                 {
-                    APLink link = _gateway.FindAPLinkByGUID(po.GUID, "Sage");
-                    //If it returns an APLink object we know it exists in Sage
-
-                    //Now we make a call to sage using the Get method and the link.AccountingProviderID
-                    //If this returns a PO from Sage, we have to compare the objects and update Sage
-                    //If it does not return an object then this means the user switched instances or deleted it, so we do a 
-                    //POST request to Sage to recreate the PO
+                    api.Post(po, "Sage");
                 }
-                else//This would be a first time push
+                else
                 {
-                    //We generate a guid using a library or our own method
-                    string guid = "dsadas56da4sd4ad4asddasd";
-
-                    //Logic for making upsert to Sage
-                    Console.WriteLine("Creating Invoice in Sage");
-
-                    //Sage gives us a response with the ID
-                    string response_Id = "13213123123";
-
-                    //Save the company Id, it's either in the response from Sage or we have to make another request...
-                    int companyId = 32534;
-                    string companyName = "BobTheBuilder";
-
-                    APLink link = new APLink()
+                    using (var transaction = _context.Database.BeginTransaction())
                     {
-                        UserID = po.UserID,
-                        GUID = guid,
-                        AccountingProviderID = response_Id,
-                        ComapnyID = companyId,
-                        ComapnyName = companyName,
-                        ConnectedDate = DateTime.Now,
-                        DisconnectedDate = null
-                    };
-
-                    _gateway.SaveGUID("PurchaseOrder", po.Id, guid);
-                    _gateway.SaveAPLink(link);
-                    _gateway.TokenSave("432423423fdsfsdf2f34re2fsdfa");
-
-                    sagePO.Id = po.Id;
-                    sagePO.Name = po.Name;
-                    sagePO.GUID = guid;
-                    sagePO.UserID = po.UserID;
+                        try
+                        {
+                            api.Post(po, "Sage");
+                            transaction.Commit();
+                        }
+                        catch (Exception)
+                        {
+                            transaction.Rollback();
+                        }
+                    }
                 }
-
-                return sagePO;
             }
             catch (Exception ex)
             {

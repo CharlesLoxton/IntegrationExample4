@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using IntegrationExample4.Data;
+using IntegrationExample4.Functions;
 using IntegrationExample4.Interfaces;
 using IntegrationExample4.Models;
 
@@ -11,73 +8,45 @@ namespace IntegrationExample4
     internal class SageClient : IClient_Actions
     {
         IGateway _gateway;
+        KDBcontext _context;
 
-        public SageClient(IGateway gateway)
+        public SageClient(IGateway gateway, KDBcontext context)
         {
-            _gateway= gateway;
+            _gateway = gateway;
+            _context = context;
         }
 
-        public IClient Upsert(IClient client)
+        public void Upsert(IClient client)
         {
             try
             {
-                Console.WriteLine("\n");
-                Console.WriteLine("Upsert for Client has been called on IClient_Actions");
-                IClient sageClient = new Client();
-                string Token = _gateway.TokenRetrieval();
+                AccountingProviderAPI api = new AccountingProviderAPI(_context, _gateway);
 
-                //Check if client.GUID exists in our APLink table
-                if (client.GUID != null)
+                IEntity sageClient = new Client();
+
+                //We need to check if Neil is using transactions, if he isn't then we have to manually create a transaction in EF core
+                if (_context.Database.CurrentTransaction != null)
                 {
-                    APLink link = _gateway.FindAPLinkByGUID(client.GUID, "Sage");
-                    //If it returns an APLink object we know it exists in Sage
-
-                    //Now we make a call to sage using the Get method and the link.AccountingProviderID
-                    //If this returns a client from Sage, we have to compare the objects and update Sage
-                    //If it does not return an object then this means the user switched instances or deleted it, so we do a 
-                    //POST request to Sage to recreate the Client
+                    api.Post(client, "Sage");
                 }
-                else//This would be a first time push
-                {         
-                    //We generate a guid using a library or our own method
-                    string guid = "dsadas56da4sd4ad4asddasd";
-
-                    //Logic for making upsert to Sage
-                    Console.WriteLine("Creating Client in Sage");
-
-                    //Sage gives us a response with the ID
-                    string response_Id = "13213123123";
-
-                    //Save the company Id, it's either in the response from Sage or we have to make another request...
-                    int companyId = 32534;
-                    string companyName = "BobTheBuilder";
-
-                    APLink link = new APLink()
+                else
+                {
+                    using (var transaction = _context.Database.BeginTransaction())
                     {
-                        UserID = client.UserID,
-                        GUID = guid,
-                        AccountingProviderID = response_Id,
-                        ComapnyID = companyId,
-                        ComapnyName = companyName,
-                        ConnectedDate = DateTime.Now,
-                        DisconnectedDate = null
-                    };
-
-                    _gateway.SaveGUID("Client", client.Id, guid);
-                    _gateway.SaveAPLink(link);
-                    _gateway.TokenSave("432423423fdsfsdf2f34re2fsdfa");
-
-                    sageClient.Id = client.Id;
-                    sageClient.Name = client.Name;
-                    sageClient.GUID = guid;
-                    sageClient.UserID = client.UserID;
+                        try
+                        {
+                            api.Post(client, "Sage");
+                            transaction.Commit();
+                        }
+                        catch (Exception)
+                        {
+                            transaction.Rollback();
+                            throw new Exception("Error with transaction");
+                        }
+                    }
                 }
-
-                Console.WriteLine("Creating Client Completed");
-                Console.WriteLine("\n");
-                return sageClient;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception("Error: " + ex.Message);
             }

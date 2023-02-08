@@ -1,4 +1,5 @@
-﻿using IntegrationExample4.Interfaces;
+﻿using IntegrationExample4.Data;
+using IntegrationExample4.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,13 @@ namespace IntegrationExample4.Factory
     {
         IGateway _gateway;
         public string _provider;
+        KDBcontext _context;
 
-        public AccountingProvider(IGateway gateway, string provider)
+        public AccountingProvider(IGateway gateway, string provider, KDBcontext context)
         {
             _gateway = gateway;
             _provider = provider;
+            _context = context;
         }
 
         public IClient_Actions Client()
@@ -23,7 +26,7 @@ namespace IntegrationExample4.Factory
             switch (_provider)
             {
                 case "Sage":
-                    return new SageClient(_gateway);
+                    return new SageClient(_gateway, _context);
                 case "Xero":
                 //return new XeroClient();
                 case "Quickbooks":
@@ -38,7 +41,7 @@ namespace IntegrationExample4.Factory
             switch (_provider)
             {
                 case "Sage":
-                    return new SageQuote(_gateway);
+                    return new SageQuote(_gateway, _context);
                 case "Xero":
                 //return new XeroQuote();
                 case "Quickbooks":
@@ -53,7 +56,7 @@ namespace IntegrationExample4.Factory
             switch (_provider)
             {
                 case "Sage":
-                    return new SageInvoice(_gateway);
+                    return new SageInvoice(_gateway, _context);
                 case "Xero":
                 //return new XeroInvoice();
                 case "Quickbooks":
@@ -68,7 +71,7 @@ namespace IntegrationExample4.Factory
             switch (_provider)
             {
                 case "Sage":
-                    return new SagePurchaseOrder(_gateway);
+                    return new SagePurchaseOrder(_gateway, _context);
                 case "Xero":
                 //return new XeroPurchaseOrder();
                 case "Quickbooks":

@@ -14,14 +14,8 @@ namespace IntegrationExample4.Models
 
         public string? AccountingProviderID { get; set; }
 
-        public string? AccountingProviderName { get; set; }
+        public ProviderInfo? provider { get; set; }
 
-        public int? ComapnyID { get; set; }
-
-        public string? ComapnyName { get; set; }
-
-        public DateTime? ConnectedDate { get; set; }
-
-        public DateTime? DisconnectedDate { get; set; }
+        public DateInfo? date { get; set; }
     }
 }
